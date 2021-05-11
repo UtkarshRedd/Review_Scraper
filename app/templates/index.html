@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<link href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+
+<style>
+
+.custom-select {
+  position: relative;
+  font-family: Arial;
+}
+
+.custom-select select {
+  display: none; /*hide original SELECT element:*/
+}
+
+.select-selected {
+  background-color: DodgerBlue;
+}
+
+/*style the arrow inside the select element:*/
+.select-selected:after {
+  position: absolute;
+  content: "";
+  top: 14px;
+  right: 10px;
+  width: 0;
+  height: 0;
+  border: 6px solid transparent;
+  border-color: #fff transparent transparent transparent;
+}
+
+/*point the arrow upwards when the select box is open (active):*/
+.select-selected.select-arrow-active:after {
+  border-color: transparent transparent #fff transparent;
+  top: 7px;
+}
+
+/*style the items (options), including the selected item:*/
+.select-items div,.select-selected {
+  color: #ffffff;
+  padding: 8px 16px;
+  border: 1px solid transparent;
+  border-color: transparent transparent rgba(0, 0, 0, 0.1) transparent;
+  cursor: pointer;
+  user-select: none;
+}
+
+/*style items (options):*/
+.select-items {
+  position: absolute;
+  background-color: DodgerBlue;
+  top: 100%;
+  left: 0;
+  right: 0;
+  z-index: 99;
+}
+
+/*hide the items when the select box is closed:*/
+.select-hide {
+  display: none;
+}
+
+.select-items div:hover, .same-as-selected {
+  background-color: rgba(0, 0, 0, 0.1);
+}
+
+
+
+.styled-table {
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    min-width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+
+.styled-table thead tr {
+    background-color: #3336ff;
+    color: #ffffff;
+    text-align: left;
+}
+
+.styled-table th,
+.styled-table td {
+    padding: 12px 15px;
+}
+
+.styled-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.styled-table tbody tr:last-of-type {
+    border-bottom: 2px solid #3336ff;
+}
+
+.styled-table tbody tr.active-row {
+    font-weight: bold;
+    color: #009879;
+}
+
+
+
+.tab {
+  overflow: hidden;
+  border: 1px solid #ccc;
+  background-color: #f1f1f1;
+}
+
+
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+}
+
+.tab button:hover {
+  background-color: #ddd;
+}
+
+
+.tab button.active {
+  background-color: #ccc;
+}
+
+
+.tabcontent {
+  display: none;
+  padding: 6px 12px;
+  border: 1px solid #ccc;
+  border-top: none;
+}
+</style>
+
+<script type="text/javascript">
+	function openPage(evt, cityName) {
+  
+  		var i, tabcontent, tablinks;
+  		tabcontent = document.getElementsByClassName("tabcontent");
+  		for (i = 0; i < tabcontent.length; i++) {
+    			tabcontent[i].style.display = "none";
+  		}
+
+  		tablinks = document.getElementsByClassName("tablinks");
+  		for (i = 0; i < tablinks.length; i++) {
+    			tablinks[i].className = 			tablinks[i].className.replace(" active", "");
+  		}
+  		document.getElementById(cityName).style.display = "block";
+  		evt.currentTarget.className += " active";
+	} 
+	
+	function getPrediction(){
+    var reviewtext=document.getElementById("review").value;
+    if(reviewtext.length>1){
+      console.log(reviewtext);
+      var url = "http://127.0.0.1:5000/predict?review="+reviewtext;
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+          if (this.readyState == 4 && this.status == 200) {
+              var val=this.responseText;
+              var responsejson=JSON.parse(val);
+              console.log(responsejson);
+              document.getElementById("sentiment-result").innerHTML = "<h3>"+responsejson["sentiment"]+"</h3>";
+          }
+      };
+      xhttp.open("GET", url, true);
+      xhttp.send();
+    }
+    else{
+      alert("Review is empty");
+    }
+  }
+  function doesFileExist(urlToFile) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('HEAD', urlToFile, false);
+      xhr.send();
+    return xhr.status !== 404;
+  }
+  function checkFile(){
+    if(doesFileExist("uploads/output.xlsx")){
+      document.addEventListener("DOMContentLoaded", function(event) {
+        document.getElementById("file-output").disabled = true;
+      });
+      console.log("Exists");
+    }
+    else{
+      console.log("NOT");
+    }
+  }
+  
+  
+	function converttodate(timestamp){
+		var date = new Date(timestamp*1000);
+		var date_string = date.getDate()+"/"+(date.getMonth()+1)+"/"+date.getFullYear()+" "+date.getHours()+":"+date.getMinutes()+":"+date.getSeconds();
+		return date_string;
+	}
+	function scrape(){
+		//alert("Your request is placed. Please refresh after few minutes");
+		var link=document.getElementById("link").value;
+		var retailer=document.getElementById("retailer").value;
+		var url = "http://127.0.0.1:5000/enqueue?link="+link+"&retailer="+retailer;
+	    var xhttp = new XMLHttpRequest();
+	    xhttp.onreadystatechange = function() {
+	        if (this.readyState == 4 && this.status == 200) {
+	            console.log("Success");
+	        }
+	    };
+	    xhttp.open("GET", url, true);
+	    xhttp.send();
+	}
+	function getReviewFiles(){
+	    console.log("hello");
+	    document.getElementById("defaultOpen").click();
+	    var url = "http://127.0.0.1:5000/fetch";
+	    var xhttp = new XMLHttpRequest();
+	    xhttp.onreadystatechange = function() {
+	        if (this.readyState == 4 && this.status == 200) {
+	            var res=this.responseText;
+	            console.log(res);
+	            var response=JSON.parse(res);
+	            //console.log(respo
+	            var table_body='<table class="styled-table">';
+	            table_body+="<thead>";
+	            table_body+="<tr>";
+	            table_body+="<th>Retailer name</th>";
+	            table_body+="<th>Time of Fetch</th>";
+	            table_body+="<th>Review file</th>";
+	            table_body+="</tr>";
+	            table_body+="</thead>";
+	            table_body+="<tbody>";
+	            for(var i=response.length-1;i>=0;i--){
+	            	table_body+="<tr>";
+	            	table_body+="<td>"+response[i]["retailer"]+"</td>";
+	            	table_body+="<td>"+converttodate(Number(response[i]["time"]))+"</td>";
+	            	table_body+='<td><a href="http://localhost:5000/results/'+response[i]["filename"]+'"'+'>'+response[i]["filename"]+'</a></td>';
+	            	table_body+="</tr>";
+	            }
+	        }
+	        table_body+="</tbody>";
+	        table_body+="</table>";
+	        document.getElementById("review-files").innerHTML=table_body;
+	        console.log(table_body);
+	        
+	    };
+	    xhttp.open("GET", url, true);
+	    xhttp.send();
+	}
+	
+</script>
+
+<body onload="getReviewFiles()">
+
+<div class="tab">
+  <button class="tablinks" onclick="openPage(event, 'scrapepage')" id="defaultOpen">Crawler</button>
+  <button class="tablinks" onclick="openPage(event, 'sentiment')">Sentiment analysis</button>
+</div>
+<script>
+document.getElementById("defaultOpen").click();
+</script>
+
+<div id="scrapepage" class="tabcontent">
+<div>
+    <label for="link">Enter URL</label><br>
+    <textarea id="link" name="link" placeholder="Enter URL" cols="50" rows="5"> </textarea>
+    <br><br>
+    <label for="retailer">Choose a retailer</label>
+	<select name="retailer" id="retailer">
+	  <option value="amazon">amazon</option>
+	  <option value="shopee">Shopee</option>
+	</select>
+    <input type="submit" value="Get Reviews" class="btn btn-primary" onclick="scrape()">
+</div>
+<input type="submit" value="Refresh" class="btn btn-primary" onclick="getReviewFiles()">
+<div id="review-files">
+</div>
+</div>
+
+
+<div id="sentiment" class="tabcontent">
+<center>
+    <h3>Sentiment Analysis</h3>
+<div>
+    <label for="review-text">Enter Review</label><br>
+    <textarea id="review" name="review-text" placeholder="Enter Review" cols="50" rows="10"> </textarea>
+    <br><br>
+    <input type="submit" value="Get sentiment" class="btn btn-primary" onclick="getPrediction()">
+</div>
+
+<div>
+  <p id="sentiment-result"></p>
+</div>
+<div>
+  <form action="" method="POST" enctype="multipart/form-data">
+    <input type="file" id="myfile" name="file" required="required">
+    <br><br>
+    <input type="submit" value="submit" class="btn btn-primary">
+  </form>
+</div>
+<script type="text/javascript">
+  checkFile();
+</script>
+<div>
+  <a id="file-output" href="{{ url_for('upload', filename='output.xlsx') }}" download>Download output</a>
+</div>
+</center>
+
+</div>
+
+<script>
+var x, i, j, l, ll, selElmnt, a, b, c;
+/*look for any elements with the class "custom-select":*/
+x = document.getElementsByClassName("custom-select");
+l = x.length;
+for (i = 0; i < l; i++) {
+  selElmnt = x[i].getElementsByTagName("select")[0];
+  ll = selElmnt.length;
+  /*for each element, create a new DIV that will act as the selected item:*/
+  a = document.createElement("DIV");
+  a.setAttribute("class", "select-selected");
+  a.innerHTML = selElmnt.options[selElmnt.selectedIndex].innerHTML;
+  x[i].appendChild(a);
+  /*for each element, create a new DIV that will contain the option list:*/
+  b = document.createElement("DIV");
+  b.setAttribute("class", "select-items select-hide");
+  for (j = 1; j < ll; j++) {
+    /*for each option in the original select element,
+    create a new DIV that will act as an option item:*/
+    c = document.createElement("DIV");
+    c.innerHTML = selElmnt.options[j].innerHTML;
+    c.addEventListener("click", function(e) {
+        /*when an item is clicked, update the original select box,
+        and the selected item:*/
+        var y, i, k, s, h, sl, yl;
+        s = this.parentNode.parentNode.getElementsByTagName("select")[0];
+        sl = s.length;
+        h = this.parentNode.previousSibling;
+        for (i = 0; i < sl; i++) {
+          if (s.options[i].innerHTML == this.innerHTML) {
+            s.selectedIndex = i;
+            h.innerHTML = this.innerHTML;
+            y = this.parentNode.getElementsByClassName("same-as-selected");
+            yl = y.length;
+            for (k = 0; k < yl; k++) {
+              y[k].removeAttribute("class");
+            }
+            this.setAttribute("class", "same-as-selected");
+            break;
+          }
+        }
+        h.click();
+    });
+    b.appendChild(c);
+  }
+  x[i].appendChild(b);
+  a.addEventListener("click", function(e) {
+      /*when the select box is clicked, close any other select boxes,
+      and open/close the current select box:*/
+      e.stopPropagation();
+      closeAllSelect(this);
+      this.nextSibling.classList.toggle("select-hide");
+      this.classList.toggle("select-arrow-active");
+    });
+}
+function closeAllSelect(elmnt) {
+  /*a function that will close all select boxes in the document,
+  except the current select box:*/
+  var x, y, i, xl, yl, arrNo = [];
+  x = document.getElementsByClassName("select-items");
+  y = document.getElementsByClassName("select-selected");
+  xl = x.length;
+  yl = y.length;
+  for (i = 0; i < yl; i++) {
+    if (elmnt == y[i]) {
+      arrNo.push(i)
+    } else {
+      y[i].classList.remove("select-arrow-active");
+    }
+  }
+  for (i = 0; i < xl; i++) {
+    if (arrNo.indexOf(i)) {
+      x[i].classList.add("select-hide");
+    }
+  }
+}
+/*if the user clicks anywhere outside the select box,
+then close all select boxes:*/
+document.addEventListener("click", closeAllSelect);
+</script>
+
+</body>
+</html>
