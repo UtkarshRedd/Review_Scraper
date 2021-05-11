@@ -26,6 +26,11 @@ def scrape_amazon(data):
     print("hello")
     print(URL)
     job = get_current_job()
+    mycursor=mydb.cursor()
+    sql_insert="insert into review1 (jod_id,time,url,retailer,status) values(%s,%s,%s,%s,%s)"
+    val=(str(job.id),str(getTimeStamp()),URL,"amazon",1)
+    mycursor.execute(sql_insert,val)
+    mydb.commit()
     dic["Review text"]=[]
     dic["Amazon Rating"]=[]
     dic["Date of Review"]=[]
@@ -44,10 +49,10 @@ def scrape_amazon(data):
     df = pd.DataFrame(data=dic)
     filename='amazon_review_data'+str(getTimeStamp())+'.csv'
     df.to_csv(os.path.abspath(os.path.dirname(__file__)+"/results/"+ filename),index=False)
-    mycursor = mydb.cursor()
-    sql="insert into review values (%s,%s,%s,%s)"
-    val = (str(job.id),str(getTimeStamp()),filename,"amazon")
-    mycursor.execute(sql, val)
+    #mycursor = mydb.cursor()
+    sql_update="update review1 set filename=%s,status=%s where jod_id=%s"
+    val_update = (filename,2,str(job.id))
+    mycursor.execute(sql_update, val_update)
     mydb.commit()
     return {
         "job_id": job.id,
@@ -63,19 +68,27 @@ def getTimeStamp():
 
 
 
-
 def scrape_shopee(data):
     job = get_current_job()
-    content = requests.get("https://shopee.com.my/api/v4/search/search_items?by=relevancy&keyword=huggies&limit=20&newest=0&order=desc&page_type=search&scenario=PAGE_GLOBAL_SEARCH&version=2")
-    products=json.loads(content.text)
-    print(products)
+    URL=data["link"]
+    temp=data["link"].split(".")
+    shopid=temp[-2]
+    itemid=temp[-1]
+    #content = requests.get("https://shopee.com.my/api/v4/search/search_items?by=relevancy&keyword=huggies&limit=20&newest=0&order=desc&page_type=search&scenario=PAGE_GLOBAL_SEARCH&version=2")
+    #products=json.loads(content.text)
+    mycursor=mydb.cursor()
+    sql_insert="insert into review1 (jod_id,time,url,retailer,status) values(%s,%s,%s,%s,%s)"
+    val=(str(job.id),str(getTimeStamp()),URL,"amazon",1)
+    mycursor.execute(sql_insert,val)
+    mydb.commit()
+    #print(products)
     dic={}
     dic["Review"]=[]
     dic["Shopee Rating"]=[]
-    for item in products["items"]:
-        shopid=item["item_basic"]["shopid"]
-        itemid=item["item_basic"]["itemid"]
-        for i in range(2):
+    for _ in range(1):
+        #shopid=item["item_basic"]["shopid"]
+        #itemid=item["item_basic"]["itemid"]
+        for i in range(30):
             URL="https://shopee.com.my/api/v2/item/get_ratings?filter=0&flag=1&itemid="+str(itemid)+"&limit=6&offset="+str(i)+"&shopid="+str(shopid)+"&type=0"
             print(URL)
             content=requests.get(URL)
@@ -86,15 +99,15 @@ def scrape_shopee(data):
                 dic["Review"].append(comment)
                 dic["Shopee Rating"].append(Rating)
             time.sleep(3)
-        time.sleep(2)
+        #time.sleep(2)
     df = pd.DataFrame(data=dic)
     print(dic)
     filename='shopee_review_data'+str(getTimeStamp())+'.csv'
     df.to_csv(os.path.abspath(os.path.dirname(__file__)+"/results/"+ filename),index=False)
     mycursor = mydb.cursor()
-    sql="insert into review values (%s,%s,%s,%s)"
-    val = (str(job.id),str(getTimeStamp()),filename,"shopee")
-    mycursor.execute(sql, val)
+    sql_update="update review1 set filename=%s,status=%s where jod_id=%s"
+    val_update = (filename,2,str(job.id))
+    mycursor.execute(sql_update, val_update)
     mydb.commit()
     return {
         "job_id": job.id,

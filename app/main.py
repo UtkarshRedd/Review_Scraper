@@ -113,13 +113,13 @@ def get_result():
 def fetch():
 	mycursor = mydb.cursor()
 	print("Inside fetch function")
-	sql="select retailer,time,filename from review";
+	sql="select * from review1";
 	mycursor.execute(sql)
 	#myresult = mycursor.fetchall()
 	desc = mycursor.description
 	column_names = [col[0] for col in desc]
 	data = [dict(zip(column_names, row)) for row in mycursor.fetchall()]
-	print(data)
+	print(len(data))
 	return jsonify(data)
 	
 @app.route('/results/<file_name>')
