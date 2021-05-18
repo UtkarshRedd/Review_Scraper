@@ -150,7 +150,7 @@ def remove_noise(tweet_tokens, stop_words = ()):
 
 def ValuePredictor_file(df):
     df["Model_Rating"]=["" for i in range(len(df))]
-    classifier = pickle.load(open("model.pkl","rb"))
+    classifier = pickle.load(open(os.path.abspath(os.path.dirname(__file__)+"/model.pkl"),"rb"))
     for index,row in df.iterrows():
         to_predict_review = str(row["Review text"])
         to_predict_tokens = remove_noise(word_tokenize(to_predict_review))
@@ -160,7 +160,8 @@ def ValuePredictor_file(df):
 def ValuePredictor(review):
 	to_predict_review = str(review)
 	to_predict_tokens = remove_noise(word_tokenize(to_predict_review))
-	classifier = pickle.load(open("model.pkl","rb"))
+	classifier = pickle.load(open(os.path.abspath(os.path.dirname(__file__)+"/model.pkl"),"rb"))
+	#classifier = pickle.load(open("model.pkl","rb"))
 	result = classifier.classify(dict([token, True] for token in to_predict_tokens))
 	return result
 
@@ -179,11 +180,12 @@ def upload_files():
         uploaded_file = request.files['file']
         filename = secure_filename(uploaded_file.filename)
         if filename != '':
-            uploaded_file.save(os.path.join(app.config['UPLOAD_PATH'], filename))
-        df=pd.read_excel("uploads/"+filename);
+            #uploaded_file.save(os.path.join(app.config['UPLOAD_PATH'], filename))
+            uploaded_file.save(os.path.abspath(os.path.dirname(__file__)+"/uploads/"+filename))
+        df=pd.read_excel(os.path.abspath(os.path.dirname(__file__)+"/uploads/"+filename));
         df=ValuePredictor_file(df)
-        df.to_excel('uploads/output.xlsx',index=False)
-    return redirect(url_for('index'))
+        df.to_excel(os.path.abspath(os.path.dirname(__file__)+"/uploads/output.xlsx"),index=False)
+    return redirect(url_for('home'))
 
 @app.route('/uploads/<filename>')
 def upload(filename):
