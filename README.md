@@ -11,8 +11,8 @@ rq worker
 export FLASK_APP=app.main:app && flask run --reload
 
 
-
-Create a MySQL database with one table 
+**
+Create a MySQL database with one table **
 
 The table Schema:
 
