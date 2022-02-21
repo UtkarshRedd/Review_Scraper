@@ -35,9 +35,10 @@ The user should provide the URL of the product and the retailer name. On clickin
 This file can then be uploaded to the Sentiment Analysis part of the app which will produce an output with the respective Sentiment scores of all the reviews.
 
 UI Looks like this : -
-![image](https://user-images.githubusercontent.com/29978378/154968717-b3300b77-73ec-43db-bd07-35e30e7b7a92.png)
+![image](https://user-images.githubusercontent.com/29978378/154969832-0c453090-4fc9-4252-bbb7-4f14b1a3a13d.png)
+![image](https://user-images.githubusercontent.com/29978378/154969860-7dbcd03f-d468-4328-ad6f-15cbfb380279.png)
 
-![image](https://user-images.githubusercontent.com/29978378/154968725-bd07c4f3-abea-47b8-a024-559d30c00d24.png)
+![image](https://user-images.githubusercontent.com/29978378/154969913-c057e40d-cc12-4eed-98ae-4947b26b1d90.png)
 
 
 **The Machine Learning model is saved in a pickle file - model.pkl. It is uses the Naive Bayes algorithm for Sentiment Classification. NLP techniques such as Lemmatization, TF-IDF, n-grams and Negation Handling have been incorporated.**
