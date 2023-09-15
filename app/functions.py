@@ -13,7 +13,7 @@ import os
 
 import mysql.connector
 
-from .mysql_connection import mydb
+from mysql_connection import mydb
 
 
 

@@ -15,9 +15,9 @@ sys.path
 
 from rq.job import Job
 
-from .functions import scrape_amazon
-from .functions import scrape_shopee
-from .redis_resc import redis_conn, redis_queue
+from functions import scrape_amazon
+from functions import scrape_shopee
+from redis_resc import redis_conn, redis_queue
 
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.corpus import stopwords
@@ -25,7 +25,7 @@ from nltk.tag import pos_tag
 from nltk.tokenize import word_tokenize
 import re, string, random
 
-from .mysql_connection import mydb
+from mysql_connection import mydb
 import mysql.connector
 
 app = Flask(__name__)
@@ -133,8 +133,8 @@ def fetch():
     # Database connetion
     db  = mysql.connector.connect(
   host="localhost",
-  user="maheshavel",
-  password="2308",
+  user="root",
+  password="",
   database='scrapedb'
 )
     mycursor = db.cursor()
