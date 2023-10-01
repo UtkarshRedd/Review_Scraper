@@ -38,6 +38,8 @@ UI Looks like this : -
 ![image](https://user-images.githubusercontent.com/29978378/154969832-0c453090-4fc9-4252-bbb7-4f14b1a3a13d.png)
 ![image](https://user-images.githubusercontent.com/29978378/154969860-7dbcd03f-d468-4328-ad6f-15cbfb380279.png)
 
+
+The methodology diagram is as follows: -
 ![image](https://user-images.githubusercontent.com/29978378/154969913-c057e40d-cc12-4eed-98ae-4947b26b1d90.png)
 
 
